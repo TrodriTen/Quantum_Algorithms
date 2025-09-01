@@ -132,4 +132,6 @@ def run_and_plot(xlsx_path: str, out_png: str = "./homeworks/results/mec_colombi
 
 if __name__ == "__main__":
     center_lat, center_lon, rdeg, rkm, out = run_and_plot("./data/DIVIPOLA_Municipios.xlsx")
-    print("Centro:", center_lat, center_lon, "Radio (°):", rdeg, "Radio (km):", rkm, "PNG:", out)
+    data = {"Centro:": (center_lat, center_lon), "Radio (°):": rdeg, "Radio (km):": rkm, "PNG:": out}
+    print(data)
+    pd.DataFrame(data).to_csv('./homeworks/results/data_innocent.csv')
