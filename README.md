@@ -67,12 +67,27 @@ Top resultados:
 
 > Nota: `cats=[crude]` son las categorías de Reuters; aparecen solo en modo NLTK.
 
+
 ### 2. Opción B - Usar carpeta local de `.txt`
 
 Coloca tus documentos en una carpeta (cada archivo `.txt` = 1 documento), por ejemplo `./data/reuters_txt/`, y ejecuta:
 
 ```bash
 python3 ./homeworks/taller_6.py --data_dir ./data/reuters_txt --query "british jaguar sales" --top_k 5
+```
+
+### 3. Opcion C - Usar archivo `.plain` en carpeta data
+
+```bash
+python3 ./homeworks/taller_6.py --reuters_plain ./data/reut2-1000.plain  --query "british jaguar sales" --top_k 10 
+```
+
+### Guardar la consulta
+
+Se usa con cualquier comando u opcion el standart output `>>`.
+
+```bash
+python3 ./homeworks/taller_6.py --use_nltk --query "british jaguar sales" --top_k 10 >> ./homeworks/results/mini_google.txt
 ```
 
 

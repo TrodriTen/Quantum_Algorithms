@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 import numpy as np
+import re
 
 import nltk
 from nltk.corpus import reuters as nltk_reuters
@@ -28,6 +29,15 @@ def read_txt_directory(data_dir: str) -> Tuple[List[str], List[str]]:
     if not docs:
         raise RuntimeError(f"No se encontraron .txt en {data_dir}")
     return doc_ids, docs
+
+
+def read_reuters_plain(path: str) -> Tuple[List[str], List[str]]:
+    raw = Path(path).read_text(encoding="utf-8", errors="ignore")
+    parts = re.split(r'<REUTERS ID="(\d+)">\s*', raw)
+    ids = parts[1::2]
+    texts = [t.strip() for t in parts[2::2]]
+    doc_ids = [f"reut-{i}" for i in ids]
+    return doc_ids, texts
 
 
 def read_nltk_reuters() -> Tuple[List[str], List[str]]:
@@ -82,7 +92,10 @@ def search(
     return [(doc_ids[i], float(sims[i])) for i in top_idx if sims[i] > 0]
 
 
-def load_corpus(use_nltk: bool, data_dir: str) -> Tuple[List[str], List[str]]:
+def load_corpus(use_nltk: bool, data_dir: str, reuters_plain: str) -> Tuple[List[str], List[str]]:
+    if reuters_plain:
+        print(f"Leyendo archivo Reuters plain: {reuters_plain}")
+        return read_reuters_plain(reuters_plain)
     if use_nltk:
         print("Leyendo corpus Reuters desde NLTK...")
         return read_nltk_reuters()
@@ -96,12 +109,13 @@ def main():
     src = parser.add_mutually_exclusive_group(required=False)
     src.add_argument("--use_nltk", action="store_true", help="Usar el corpus Reuters de NLTK")
     parser.add_argument("--data_dir", type=str, default="./corpus", help="Directorio con .txt (si no se usa NLTK)")
+    parser.add_argument("--reuters_plain", type=str, help="Ruta a un archivo reut2-XXXX.plain")
     parser.add_argument("--query", type=str, required=True, help="Consulta de búsqueda, p.ej. 'british jaguar sales'")
     parser.add_argument("--top_k", type=int, default=10, help="Número de documentos a retornar")
     parser.add_argument("--ngram_max", type=int, default=1, help="Usar unigramas (1) o bigramas (2)")
     args = parser.parse_args()
 
-    doc_ids, docs = load_corpus(args.use_nltk, args.data_dir)
+    doc_ids, docs = load_corpus(args.use_nltk, args.data_dir, args.reuters_plain)
     print(f"Documentos cargados: {len(docs):,}")
 
     vectorizer = build_vectorizer(args.ngram_max)
